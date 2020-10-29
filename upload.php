@@ -27,15 +27,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $data = array('errors' => array());
 
-    $extension = array("jpeg","jpg","png","gif",'pdf','txt');
+    $extension = array_filter(preg_split("/[\s,]+/", get_option('supported_filetypes')), function($v){
+       return trim($v);
+    });
 
-    $totalBytes = 10000000; // 10mb
+    $totalBytes = get_option('supported_filesize'); // 10mb
+
+    $data['test'] = $extension;
+
     if(!empty($files))
     {
         $file_desc = reArrayFiles($files);  
 
 
-        // $data['test'] = $file_desc;
+        
 
         foreach($file_desc as $val)
         {
@@ -48,10 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $full_path = $upload_path.$newname;
             // $newname = $name.'__'.date('YmdHis',time()).mt_rand().'.'.$ext;
             $upload_ok = true;
-            // print_r($newname);
 
             $now = new DateTime();
             $datesent=$now->format('Y-m-d H:i:s'); 
+
+            
 
             if(file_exists($full_path)){
 
@@ -60,31 +66,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'filename' => $val['name']
               );
 
-              // print_r("test");
               array_push($data['errors'], $err_arr);
-              // print_r($errors);
-              // print_r('Filename is the same');
-              // return;
               $upload_ok = false;
             }
 
-            // $data['test'] = ];
-            if($val['size'] > $totalBytes){
+            if($val['size'] > $totalBytes && !empty($totalBytes)){
                 $upload_ok = false;
 
                 $err_arr = array(
-                  'error_msg' => 'The file is bigger than '.($totalBytes/1000000).'mb',
+                  'error_msg' => 'The file is larger than '.($totalBytes/1000000).'mb',
                   'filename' => $val['name']
                 );
 
                 // php_round($val['size'] / 1000000, 2)
-
-                // print_r("test");
                 array_push($data['errors'], $err_arr);
-                // array_push($errors, $name." file size is larger than the 10 MB.");
             }
 
-            if(in_array(strtolower($ext), $extension) == false){
+
+            
+            if(in_array(strtolower($ext), $extension) == false && !empty($extension)){
 
               $err_arr = array(
                 'error_msg' => 'Extension not supported',
@@ -117,36 +117,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   'comment_count' => 0
               ));
 
-              // $wpdb->insert_id;
               $wpdb->insert('wp_postmeta', array(
                 'post_id' => $wpdb->insert_id,
                 'meta_key' => '_wp_attached_file',
                 'meta_value' => 'restricted/'.$name
               ));
-
-
-              // $data['test'] = $wpdb->insert_id;
             }
-            
-            // print_r($ext);
-            // echo $name;
-            // echo ABSPATH;
-            // print_r($val['tmp_name'],'./uploads/'.$newname);
-            // move_uploaded_file($val['tmp_name'], ABSPATH.'wp-content/uploads/restricted/'.$newname);
-
         }
+    } else {
+      $err_arr = array(
+        'error_msg' => 'No files have been detected',
+        'filename' => 'No Files Detected'
+      );
+
+      array_push($data['errors'], $err_arr);
+      // $upload_ok = false; 
     }
-
-    // if(!empty($data)){
-      // header('Content-Type: application/json');
-      // echo "testing123";
-      echo json_encode($data);
-      // print_r($errors);
-    // }
-    // print_r($_POST['files']);
-    // print_r($_FILES['files']);
-
-    // print_r($files);
+    echo json_encode($data);
     exit;
 }
 

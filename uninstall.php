@@ -8,6 +8,8 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 // $option_name = 'blog_homepage';
  
 delete_option('hide_attachment_page');
+delete_option('supported_filetypes');
+delete_option('supported_filesize');
 // delete_option('show_page_title');
 // delete_option('generic_homepage_title');
 

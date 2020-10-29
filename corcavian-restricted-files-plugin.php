@@ -85,6 +85,25 @@ class CORCAVIAN_RESTRICTED_FILES_PLUGIN {
         display: table-cell;
         text-align: center;
       }
+
+      .errors{
+        
+      }
+
+      .alert.alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+
+      .alert{
+        margin-top: 1rem;
+        position: relative;
+        padding: .75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: .25rem;
+      }
     </style>
 
 
@@ -154,15 +173,20 @@ class CORCAVIAN_RESTRICTED_FILES_PLUGIN {
               contentType: false, // tell jQuery not to set contentType
               type: 'POST',
               success: function (data) {
+                var errDiv = $('.errors');
+                errDiv.html('');
                 console.log("success");
                 console.log(data);
                 if(data.errors.length > 0){
                   console.log('have errors');
+                  for(var i = 0; i < data.errors.length; i++){
+                     errDiv.append('<div class="alert alert-danger">' + data.errors[i]['filename'] + ': ' + data.errors[i]['error_msg'] + '</div>');
+                  }
                 }
               },
               error: function (data) {
-                  var errDiv = $('.errors');
-                  errDiv.html('');
+                  // var errDiv = $('.errors');
+                  // errDiv.html('');
                   // console.log(errDiv);
                   // for (var item in data.responseJSON) {
                   //     for (var i = 0; i < data.responseJSON[item].length; i++) {
@@ -171,7 +195,7 @@ class CORCAVIAN_RESTRICTED_FILES_PLUGIN {
                   // }
               }
           });
-
+21
         });
 
 
@@ -187,6 +211,44 @@ class CORCAVIAN_RESTRICTED_FILES_PLUGIN {
     });
 
     </script>
+
+
+    <h1 class="test">Private Files uploader</h1>
+
+
+    <!-- Dropable field -->
+    <div class="droppable">
+        <div>
+            <!-- <span class="fa fa-upload" style="font-size: 8em;"></span> -->
+            <span class="dashicons dashicons-paperclip"></span>
+        </div>
+        Please drag or click to upload your files here...
+        <div class="droppable_count">&nbsp;</div>
+    </div>
+
+    <div class="droppable_files"></div>
+
+    <form action='<?php echo $this->uploadFile ?>' method="POST" class="dropform" enctype="multipart/form-data">
+        <!-- <input type="text" value="something" name="sm"/> -->
+        <?php   ?>
+        <div class="form-group py-2" style="margin-top: 20px;">
+            <input type="button" class="button button-secondary clear-files" value="Clear Files">
+        </div>
+        <!-- <div class="form-group">
+            <input type="submit" class="btn btn-secondary ajax-upload" />
+        </div> -->
+
+        <!-- <input type="text" name="test" value="test"/> -->
+        <div class="form-group py-2" style="margin-top: 20px;">
+          <button type="submit" class="button button-primary ajax-upload" name="submit">Submit</button>
+        <!--  -->
+        </div>
+
+        <div class="errors"></div>
+
+    </form>
+
+
 
     <h1 class="test">Corcavian Restricted Files Settings</h1>
     <p>Thank you for using the corcavian Restricted Files plugin. We hope this lightweight plugin helps you with your site</p>
@@ -208,44 +270,21 @@ class CORCAVIAN_RESTRICTED_FILES_PLUGIN {
           </td>
           <td>*Redirects any user that visits the attachment page if true</td>
         </tr>
+        <tr>
+          <th><label for="supported_filetypes">Supported filetypes</label></th>
+          <td><input type="text" id="supported_filetypes" name="supported_filetypes" value="<?php echo get_option('supported_filetypes'); ?>" /></td>
+          <td>*Add file extensions here seperated by a space...</td>
+        </tr>
+        <tr>
+          <th><label for="supported_filesize">Max Filesize</label></th>
+          <td><input type="text" id="supported_filesize" name="supported_filesize" value="<?php echo get_option('supported_filesize'); ?>" /></td>
+          <td>*Edit filesize of the file</td>
+        </tr>
       </table>
       <?php  submit_button(); ?>
     </form>
 
     <!-- <form action=""> -->
-
-      <h1 class="test">Private Files uploader</h1>
-
-
-      <!-- Dropable field -->
-      <div class="droppable">
-          <div>
-              <!-- <span class="fa fa-upload" style="font-size: 8em;"></span> -->
-              <span class="dashicons dashicons-paperclip"></span>
-          </div>
-          Please drag or click to upload your files here...
-          <div class="droppable_count">&nbsp;</div>
-      </div>
-
-      <div class="droppable_files"></div>
-
-      <form action='<?php echo $this->uploadFile ?>' method="POST" class="dropform" enctype="multipart/form-data">
-          <!-- <input type="text" value="something" name="sm"/> -->
-          <?php   ?>
-          <div class="form-group py-2" style="margin-top: 20px;">
-              <input type="button" class="button button-secondary clear-files" value="Clear Files">
-          </div>
-          <!-- <div class="form-group">
-              <input type="submit" class="btn btn-secondary ajax-upload" />
-          </div> -->
-
-          <!-- <input type="text" name="test" value="test"/> -->
-          <div class="form-group py-2" style="margin-top: 20px;">
-            <button type="submit" class="button button-primary ajax-upload" name="submit">Submit</button>
-          <!--  -->
-          </div>
-
-      </form>
 
     <!-- </form> -->
     <?php
@@ -253,6 +292,8 @@ class CORCAVIAN_RESTRICTED_FILES_PLUGIN {
 
   public function corcavian_register_settings(){
     register_setting( 'corcavian_restricted_plugin_options_group', 'hide_attachment_page'); //, array($this, 'corcavian_register_settings_cb')
+    register_setting( 'corcavian_restricted_plugin_options_group', 'supported_filetypes');
+    register_setting( 'corcavian_restricted_plugin_options_group', 'supported_filesize');
   }
 
 }
