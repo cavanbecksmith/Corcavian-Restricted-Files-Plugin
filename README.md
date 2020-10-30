@@ -30,13 +30,7 @@ All uploads from this plugins menu page will upload to this directory
 ```
 /wp-content/uploads/restricted/
 ```
-## Updating the code for your usage
-Currently I am only supporting few filetypes and have the upload size capped at 10mb.
-
-(Going to at some point create these into options in the admin menu.)
-
-However you can change these settings by going to ```plugins/corcavian-restricted-files/upload.php```
-
-Add a list of your supported filetypes ```$extension = array("jpeg","jpg","png","gif",'pdf','txt')```
-
-Update the filesize -> ```$totalBytes = 10000000; // 10mb```
+## Wordpress Options
+* hide_attachment_page -> If true hides the page for attachments
+* supported_filetypes -> Transforms string into array for file extensions e.g (png jpg gif)
+* supported_filesize -> Max filesize of the file being uploaded
